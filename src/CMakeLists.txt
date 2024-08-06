@@ -37,6 +37,7 @@ add_subdirectory(GPS)
 add_subdirectory(Joystick)
 add_subdirectory(MAVLink)
 add_subdirectory(MissionManager)
+add_subdirectory(NTRIP)
 # add_subdirectory(PlanView)
 add_subdirectory(PositionManager)
 add_subdirectory(QmlControls)
@@ -80,6 +81,7 @@ target_link_libraries(QGC
         Joystick
         MAVLink
         MissionManager
+        NTRIP
         # PlanView
         PositionManager
         QGCLocation
