@@ -28,11 +28,7 @@ void NTRIP::setToolbox(QGCToolbox* toolbox)
     if (settings->ntripServerConnectEnabled()->rawValue().toBool()) {
         _rtcmMavlink = new RTCMMavlink(*toolbox);
         
-        _tcpLink = new NTRIPTCPLink(settings->ntripServerHostAddress()->rawValue().toString(),
-                                    settings->ntripServerPort()->rawValue().toInt(),
-                                    settings->ntripUsername()->rawValue().toString(),
-                                    settings->ntripPassword()->rawValue().toString(),
-                                    settings->ntripMountpoint()->rawValue().toString(),
+        _tcpLink = new NTRIPTCPLink(settings->ntripUrl()->rawValue().toString(),
                                     settings->ntripWhitelist()->rawValue().toString(),
                                     this);
         connect(_tcpLink, &NTRIPTCPLink::error,              this, &NTRIP::_tcpError,           Qt::QueuedConnection);
@@ -47,19 +43,11 @@ void NTRIP::_tcpError(const QString errorMsg)
 }
 
 
-NTRIPTCPLink::NTRIPTCPLink(const QString& hostAddress,
-                           int port,
-                           const QString &username,
-                           const QString &password,
-                           const QString &mountpoint,
+NTRIPTCPLink::NTRIPTCPLink(const QUrl ntripUrl,
                            const QString &whitelist,
                            QObject* parent)
     : QThread       (parent)
-    , _hostAddress  (hostAddress)
-    , _port         (port)
-    , _username     (username)
-    , _password     (password)
-    , _mountpoint   (mountpoint)
+    , _ntripUrl     (ntripUrl)
 {
     moveToThread(this);
 
@@ -68,6 +56,7 @@ NTRIPTCPLink::NTRIPTCPLink(const QString& hostAddress,
         if(msg_int)
             _whitelist.append(msg_int);
     }
+    qCDebug(NTRIPLog) << "url: " << _ntripUrl.toString();
     qCDebug(NTRIPLog) << "whitelist: " << _whitelist;
     if (!_rtcm_parsing) {
         _rtcm_parsing = new RTCMParsing();
@@ -104,7 +93,7 @@ void NTRIPTCPLink::_hardwareConnect()
     
     QObject::connect(_socket, &QTcpSocket::readyRead, this, &NTRIPTCPLink::_readBytes);
     
-    _socket->connectToHost(_hostAddress, static_cast<quint16>(_port));
+    _socket->connectToHost(_ntripUrl.host(), static_cast<quint16>(_ntripUrl.port()));
     
     // Give the socket a second to connect to the other side otherwise error out
     if (!_socket->waitForConnected(1000)) {
@@ -115,11 +104,13 @@ void NTRIPTCPLink::_hardwareConnect()
         return;
     }
     // If mountpoint is specified, send an http get request for data
-    if ( !_mountpoint.isEmpty()){
+
+    auto mountpoint = _ntripUrl.path().removeAt(0);
+    if ( !mountpoint.isEmpty()){
         qCDebug(NTRIPLog) << "Sending HTTP request";
-        QString auth = QString(_username + ":"  + _password).toUtf8().toBase64();
+        QString auth = QString(_ntripUrl.userName() + ":"  + _ntripUrl.password().toUtf8().toBase64());
         QString query = "GET /%1 HTTP/1.0\r\nUser-Agent: NTRIP\r\nAuthorization: Basic %2\r\n\r\n";
-        _socket->write(query.arg(_mountpoint).arg(auth).toUtf8());
+        _socket->write(query.arg(mountpoint).arg(auth).toUtf8());
         _state = NTRIPState::waiting_for_http_response;
     }
     // If no mountpoint is set, assume we will just get data from the tcp stream

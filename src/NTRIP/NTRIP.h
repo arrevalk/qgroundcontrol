@@ -13,6 +13,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
+#include <QUrl>
 #include "Drivers/src/rtcm.h"
 #include "RTCMMavlink.h"
 
@@ -25,11 +26,7 @@ class NTRIPTCPLink : public QThread
     Q_OBJECT
 
 public:
-    NTRIPTCPLink(const QString& hostAddress,
-                 int port,
-                 const QString& username,
-                 const QString& password,
-                 const QString& mountpoint,
+    NTRIPTCPLink(const QUrl ntripUrl,
                  const QString& whitelist,
                  QObject* parent);
     ~NTRIPTCPLink();
@@ -57,11 +54,7 @@ private:
 
     QTcpSocket*     _socket =   nullptr;
 
-    QString         _hostAddress;
-    int             _port;
-    QString         _username;
-    QString         _password;
-    QString         _mountpoint;
+    QUrl            _ntripUrl;
     QVector<int>    _whitelist;
 	
     RTCMParsing *_rtcm_parsing{nullptr};

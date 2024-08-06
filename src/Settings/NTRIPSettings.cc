@@ -18,9 +18,6 @@ DECLARE_SETTINGGROUP(NTRIP, "NTRIP")
 }
 
 DECLARE_SETTINGSFACT(NTRIPSettings, ntripServerConnectEnabled)
-DECLARE_SETTINGSFACT(NTRIPSettings, ntripServerHostAddress)
-DECLARE_SETTINGSFACT(NTRIPSettings, ntripServerPort)
-DECLARE_SETTINGSFACT(NTRIPSettings, ntripUsername)
-DECLARE_SETTINGSFACT(NTRIPSettings, ntripPassword)
-DECLARE_SETTINGSFACT(NTRIPSettings, ntripMountpoint)
+DECLARE_SETTINGSFACT(NTRIPSettings, ntripUrl)
+
 DECLARE_SETTINGSFACT(NTRIPSettings, ntripWhitelist)

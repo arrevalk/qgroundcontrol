@@ -234,34 +234,10 @@ SettingsPage {
         }
         LabelledFactTextField {
             Layout.fillWidth:   true
-            label:              _ntripSettings.ntripServerHostAddress.shortDescription
-            fact:               _ntripSettings.ntripServerHostAddress
-            visible:            _ntripSettings.ntripServerHostAddress.visible
+            label:              _ntripSettings.ntripUrl.shortDescription
+            fact:               _ntripSettings.ntripUrl
+            visible:            _ntripSettings.ntripUrl.visible
             textFieldPreferredWidth: 200
-        }
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              _ntripSettings.ntripServerPort.shortDescription
-            fact:               _ntripSettings.ntripServerPort
-            visible:            _ntripSettings.ntripServerPort.visible
-        }
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              _ntripSettings.ntripUsername.shortDescription
-            fact:               _ntripSettings.ntripUsername
-            visible:            _ntripSettings.ntripUsername.visible
-        }
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              _ntripSettings.ntripPassword.shortDescription
-            fact:               _ntripSettings.ntripPassword
-            visible:            _ntripSettings.ntripPassword.visible
-        }
-        LabelledFactTextField {
-            Layout.fillWidth:   true
-            label:              _ntripSettings.ntripMountpoint.shortDescription
-            fact:               _ntripSettings.ntripMountpoint
-            visible:            _ntripSettings.ntripMountpoint.visible
         }
         LabelledFactTextField {
             Layout.fillWidth:   true
