@@ -21,6 +21,7 @@ import QGroundControl.Palette
 SettingsPage {
     property var _linkManager:          QGroundControl.linkManager
     property var _autoConnectSettings:  QGroundControl.settingsManager.autoConnectSettings
+    property var _ntripSettings:        QGroundControl.settingsManager.ntripSettings
 
     SettingsGroupLayout {
         heading:        qsTr("AutoConnect")
@@ -222,5 +223,52 @@ SettingsPage {
                 }
             }
         }
+    }
+
+    SettingsGroupLayout {
+        heading: qsTr("NTRIP")
+        FactCheckBox {
+            text: _ntripSettings.ntripServerConnectEnabled.shortDescription
+            fact: _ntripSettings.ntripServerConnectEnabled
+            visible: _ntripSettings.ntripServerConnectEnabled.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripServerHostAddress.shortDescription
+            fact:               _ntripSettings.ntripServerHostAddress
+            visible:            _ntripSettings.ntripServerHostAddress.visible
+            textFieldPreferredWidth: 200
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripServerPort.shortDescription
+            fact:               _ntripSettings.ntripServerPort
+            visible:            _ntripSettings.ntripServerPort.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripUsername.shortDescription
+            fact:               _ntripSettings.ntripUsername
+            visible:            _ntripSettings.ntripUsername.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripPassword.shortDescription
+            fact:               _ntripSettings.ntripPassword
+            visible:            _ntripSettings.ntripPassword.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripMountpoint.shortDescription
+            fact:               _ntripSettings.ntripMountpoint
+            visible:            _ntripSettings.ntripMountpoint.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripWhitelist.shortDescription
+            fact:               _ntripSettings.ntripWhitelist
+            visible:            _ntripSettings.ntripWhitelist.visible
+        }
+
     }
 }
