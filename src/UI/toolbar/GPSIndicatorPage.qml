@@ -25,6 +25,7 @@ ToolIndicatorPage {
     property string na:                 qsTr("N/A", "No data to display")
     property string valueNA:            qsTr("--.--", "No data to display")
     property var    rtkSettings:        QGroundControl.settingsManager.rtkSettings
+    property var    ntripSettings:      QGroundControl.settingsManager.ntripSettings
     property bool   useFixedPosition:   rtkSettings.useFixedBasePosition.rawValue
 
     contentComponent: Component {
@@ -88,101 +89,121 @@ ToolIndicatorPage {
     }
 
     expandedComponent: Component {
-        SettingsGroupLayout {
-            heading:        qsTr("RTK GPS Settings")
+        ColumnLayout {
+            spacing: ScreenTools.defaultFontPixelHeight / 2
+            SettingsGroupLayout {
+                heading:        qsTr("RTK GPS Settings")
 
-            property real sliderWidth: ScreenTools.defaultFontPixelWidth * 32 // Size is tuned so expanded page fits Herelink screen without horiz scrolling
+                property real sliderWidth: ScreenTools.defaultFontPixelWidth * 32 // Size is tuned so expanded page fits Herelink screen without horiz scrolling
 
-            FactCheckBoxSlider {
-                Layout.fillWidth:   true
-                text:               qsTr("AutoConnect")
-                fact:               QGroundControl.settingsManager.autoConnectSettings.autoConnectRTKGPS
-                visible:            fact.visible
-            }
-
-            FactCheckBoxSlider {
-                Layout.fillWidth:   true
-                text:               qsTr("Perform Survey-In")
-                fact:               rtkSettings.useFixedBasePosition
-                checkedValue:       false
-                uncheckedValue:     true
-                visible:            rtkSettings.useFixedBasePosition.visible
-            }
-
-            LabelledFactSlider {
-                sliderPreferredWidth:   sliderWidth
-                label:                  rtkSettings.surveyInAccuracyLimit.shortDescription
-                fact:                   QGroundControl.settingsManager.rtkSettings.surveyInAccuracyLimit
-                visible:                rtkSettings.surveyInAccuracyLimit.visible
-                enabled:                !useFixedPosition
-
-                Component.onCompleted: console.log("increment", fact.increment)
-            }
-
-            LabelledFactSlider {
-                sliderPreferredWidth:   sliderWidth
-                label:                  rtkSettings.surveyInMinObservationDuration.shortDescription
-                fact:                   rtkSettings.surveyInMinObservationDuration
-                visible:                rtkSettings.surveyInMinObservationDuration.visible
-                enabled:                !useFixedPosition
-            }
-
-            FactCheckBoxSlider {
-                Layout.columnSpan:  3
-                Layout.fillWidth:   true
-                text:               qsTr("Use Specified Base Position")
-                fact:               rtkSettings.useFixedBasePosition
-                visible:            rtkSettings.useFixedBasePosition.visible
-            }
-
-            LabelledFactTextField {
-                label:                  rtkSettings.fixedBasePositionLatitude.shortDescription
-                fact:                   rtkSettings.fixedBasePositionLatitude
-                visible:                rtkSettings.fixedBasePositionLatitude.visible
-                enabled:                useFixedPosition
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionLongitude.shortDescription
-                fact:               rtkSettings.fixedBasePositionLongitude
-                visible:            rtkSettings.fixedBasePositionLongitude.visible
-                enabled:            useFixedPosition
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionAltitude.shortDescription
-                fact:               rtkSettings.fixedBasePositionAltitude
-                visible:            rtkSettings.fixedBasePositionAltitude.visible
-                enabled:            useFixedPosition
-            }
-
-            LabelledFactTextField {
-                label:              rtkSettings.fixedBasePositionAccuracy.shortDescription
-                fact:               rtkSettings.fixedBasePositionAccuracy
-                visible:            rtkSettings.fixedBasePositionAccuracy.visible
-                enabled:            useFixedPosition
-            }
-
-            RowLayout {
-                spacing: ScreenTools.defaultFontPixelWidth
-
-                QGCLabel {
-                    Layout.fillWidth:   true;
-                    text:               qsTr("Current Base Position")
-                    enabled:            saveBasePositionButton.enabled
+                FactCheckBoxSlider {
+                    Layout.fillWidth:   true
+                    text:               qsTr("AutoConnect")
+                    fact:               QGroundControl.settingsManager.autoConnectSettings.autoConnectRTKGPS
+                    visible:            fact.visible
                 }
 
-                QGCButton {
-                    id:         saveBasePositionButton
-                    text:       enabled ? qsTr("Save") : qsTr("Not Yet Valid")
-                    enabled:    QGroundControl.gpsRtk.valid.value
+                FactCheckBoxSlider {
+                    Layout.fillWidth:   true
+                    text:               qsTr("Perform Survey-In")
+                    fact:               rtkSettings.useFixedBasePosition
+                    checkedValue:       false
+                    uncheckedValue:     true
+                    visible:            rtkSettings.useFixedBasePosition.visible
+                }
 
-                    onClicked: {
-                        rtkSettings.fixedBasePositionLatitude.rawValue  = QGroundControl.gpsRtk.currentLatitude.rawValue
-                        rtkSettings.fixedBasePositionLongitude.rawValue = QGroundControl.gpsRtk.currentLongitude.rawValue
-                        rtkSettings.fixedBasePositionAltitude.rawValue  = QGroundControl.gpsRtk.currentAltitude.rawValue
-                        rtkSettings.fixedBasePositionAccuracy.rawValue  = QGroundControl.gpsRtk.currentAccuracy.rawValue
+                LabelledFactSlider {
+                    sliderPreferredWidth:   sliderWidth
+                    label:                  rtkSettings.surveyInAccuracyLimit.shortDescription
+                    fact:                   QGroundControl.settingsManager.rtkSettings.surveyInAccuracyLimit
+                    visible:                rtkSettings.surveyInAccuracyLimit.visible
+                    enabled:                !useFixedPosition
+
+                    Component.onCompleted: console.log("increment", fact.increment)
+                }
+
+                LabelledFactSlider {
+                    sliderPreferredWidth:   sliderWidth
+                    label:                  rtkSettings.surveyInMinObservationDuration.shortDescription
+                    fact:                   rtkSettings.surveyInMinObservationDuration
+                    visible:                rtkSettings.surveyInMinObservationDuration.visible
+                    enabled:                !useFixedPosition
+                }
+
+                FactCheckBoxSlider {
+                    Layout.columnSpan:  3
+                    Layout.fillWidth:   true
+                    text:               qsTr("Use Specified Base Position")
+                    fact:               rtkSettings.useFixedBasePosition
+                    visible:            rtkSettings.useFixedBasePosition.visible
+                }
+
+                LabelledFactTextField {
+                    label:                  rtkSettings.fixedBasePositionLatitude.shortDescription
+                    fact:                   rtkSettings.fixedBasePositionLatitude
+                    visible:                rtkSettings.fixedBasePositionLatitude.visible
+                    enabled:                useFixedPosition
+                }
+
+                LabelledFactTextField {
+                    label:              rtkSettings.fixedBasePositionLongitude.shortDescription
+                    fact:               rtkSettings.fixedBasePositionLongitude
+                    visible:            rtkSettings.fixedBasePositionLongitude.visible
+                    enabled:            useFixedPosition
+                }
+
+                LabelledFactTextField {
+                    label:              rtkSettings.fixedBasePositionAltitude.shortDescription
+                    fact:               rtkSettings.fixedBasePositionAltitude
+                    visible:            rtkSettings.fixedBasePositionAltitude.visible
+                    enabled:            useFixedPosition
+                }
+
+                LabelledFactTextField {
+                    label:              rtkSettings.fixedBasePositionAccuracy.shortDescription
+                    fact:               rtkSettings.fixedBasePositionAccuracy
+                    visible:            rtkSettings.fixedBasePositionAccuracy.visible
+                    enabled:            useFixedPosition
+                }
+
+                RowLayout {
+                    spacing: ScreenTools.defaultFontPixelWidth
+
+                    QGCLabel {
+                        Layout.fillWidth:   true;
+                        text:               qsTr("Current Base Position")
+                        enabled:            saveBasePositionButton.enabled
                     }
+
+                    QGCButton {
+                        id:         saveBasePositionButton
+                        text:       enabled ? qsTr("Save") : qsTr("Not Yet Valid")
+                        enabled:    QGroundControl.gpsRtk.valid.value
+
+                        onClicked: {
+                            rtkSettings.fixedBasePositionLatitude.rawValue  = QGroundControl.gpsRtk.currentLatitude.rawValue
+                            rtkSettings.fixedBasePositionLongitude.rawValue = QGroundControl.gpsRtk.currentLongitude.rawValue
+                            rtkSettings.fixedBasePositionAltitude.rawValue  = QGroundControl.gpsRtk.currentAltitude.rawValue
+                            rtkSettings.fixedBasePositionAccuracy.rawValue  = QGroundControl.gpsRtk.currentAccuracy.rawValue
+                        }
+                    }
+                }
+            }
+            SettingsGroupLayout {
+                heading:        qsTr("RTK NTRIP Settings")
+                LabelledFactTextField {
+                    Layout.fillWidth:   true;
+                    label:              ntripSettings.ntripUrl.shortDescription
+                    fact:               ntripSettings.ntripUrl
+                    visible:            ntripSettings.ntripUrl.visible
+                    textFieldPreferredWidth: 400
+                }
+                LabelledFactTextField {
+                    Layout.fillWidth:   true;
+                    label:              ntripSettings.ntripWhitelist.shortDescription
+                    fact:               ntripSettings.ntripWhitelist
+                    visible:            ntripSettings.ntripWhitelist.visible
+                    textFieldPreferredWidth: 400
                 }
             }
         }
