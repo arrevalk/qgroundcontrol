@@ -52,14 +52,21 @@ private:
 
     void _hardwareConnect(void);
     void _parse(const QByteArray &buffer);
+    void _sendNMEA();
+    QString _getCheckSum(QString line);
 
     QTcpSocket*     _socket =   nullptr;
 
+    bool            _isVRSEnable;
     QUrl            _ntripUrl;
     QVector<int>    _whitelist;
 	
     RTCMParsing *_rtcm_parsing{nullptr};
+    QTimer* _vrsSendTimer{nullptr};
+    static const int _vrsSendRateMSecs = 30000;
     NTRIPState _state;
+
+    QGCToolbox* _toolbox{nullptr};
 };
 
 class NTRIP : public QGCTool {

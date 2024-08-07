@@ -12,6 +12,7 @@
 #include "QGCApplication.h"
 #include "SettingsManager.h"
 #include "NTRIPSettings.h"
+#include "PositionManager.h"
 
 #include <QDebug>
 
@@ -49,7 +50,9 @@ NTRIPTCPLink::NTRIPTCPLink(const QUrl ntripUrl,
                            const bool vrsEnabled,
                            QObject* parent)
     : QThread       (parent)
+    , _isVRSEnable  (vrsEnabled)
     , _ntripUrl     (ntripUrl)
+    , _toolbox      (qgcApp()->toolbox())
 {
     moveToThread(this);
 
@@ -78,14 +81,28 @@ NTRIPTCPLink::~NTRIPTCPLink(void)
         _socket->deleteLater();
         _socket = nullptr;
     }
+    if(_vrsSendTimer){
+        _vrsSendTimer->stop();
+        _vrsSendTimer->deleteLater();
+        _vrsSendTimer = nullptr;
+    }
     if(_rtcm_parsing) {
         delete _rtcm_parsing;
+        _rtcm_parsing = nullptr;
     }
 }
 
 void NTRIPTCPLink::run(void)
 {
     _hardwareConnect();
+
+    if(_isVRSEnable){
+        _vrsSendTimer = new QTimer();
+        _vrsSendTimer->setInterval(_vrsSendRateMSecs);
+        _vrsSendTimer->setSingleShot(false);
+        QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_sendNMEA);
+        _vrsSendTimer->start();
+    }
     exec();
 }
 
@@ -110,9 +127,16 @@ void NTRIPTCPLink::_hardwareConnect()
     auto mountpoint = _ntripUrl.path().removeAt(0);
     if ( !mountpoint.isEmpty()){
         qCDebug(NTRIPLog) << "Sending HTTP request";
-        QString auth = QString(_ntripUrl.userName() + ":"  + _ntripUrl.password().toUtf8().toBase64());
-        QString query = "GET /%1 HTTP/1.0\r\nUser-Agent: NTRIP\r\nAuthorization: Basic %2\r\n\r\n";
-        _socket->write(query.arg(mountpoint).arg(auth).toUtf8());
+        QString auth = QString(_ntripUrl.userName() + ":"  + _ntripUrl.password()).toUtf8().toBase64();
+        QString query =
+            "GET /%1 HTTP/1.0\r\n"
+            "User-Agent: NTRIP QGroundControl\r\n"
+            "Accept: */*\r\n"
+            "Ntrip-Version: Ntrip/2.0\r\n"
+            "Authorization: Basic %2\r\n"
+            "Connection: close\r\n"
+            "\r\n";
+        _socket->write(query.arg(mountpoint, auth).toUtf8());
         _state = NTRIPState::waiting_for_http_response;
     }
     // If no mountpoint is set, assume we will just get data from the tcp stream
@@ -152,6 +176,7 @@ void NTRIPTCPLink::_readBytes(void)
     if (_socket) {
         if(_state == NTRIPState::waiting_for_http_response){
             QString line = _socket->readLine();
+            qCInfo(NTRIPLog) << line;
             if (line.contains("200")){
                 _state = NTRIPState::waiting_for_rtcm_header;
             }
@@ -163,7 +188,82 @@ void NTRIPTCPLink::_readBytes(void)
             }
         }
         QByteArray bytes = _socket->readAll();
-        qCInfo(NTRIPLog) << bytes;
         _parse(bytes);
     }
+}
+
+
+void NTRIPTCPLink::_sendNMEA() {
+    QGeoCoordinate gcsPosition = _toolbox->qgcPositionManager()->gcsPosition();
+
+    if(!gcsPosition.isValid()) {
+        return;
+    }
+
+    double lat = gcsPosition.latitude();
+    double lng = gcsPosition.longitude();
+    double alt = gcsPosition.altitude();
+
+    qCDebug(NTRIPLog) << "lat : " << lat << " lon : " << lng << " alt : " << alt;
+
+    QString time = QDateTime::currentDateTimeUtc().toString("hhmmss.zzz");
+
+    if(lat != 0 || lng != 0) {
+        double latdms = (int) lat + (lat - (int) lat) * .6f;
+        double lngdms = (int) lng + (lng - (int) lng) * .6f;
+        if(isnan(alt)) alt = 0.0;
+
+        QString line = QString("$GP%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15")
+                           .arg("GGA", time,
+                                QString::number(qFabs(latdms * 100), 'f', 2).rightJustified(7,'0'), lat < 0 ? "S" : "N",
+                                QString::number(qFabs(lngdms * 100), 'f', 2).rightJustified(8,'0'), lng < 0 ? "W" : "E",
+                                "1", "15", "1.0",
+                                QString::number(alt, 'f', 2),
+                                "M", "31.7", "M", "", "0");
+
+        // Calculrate checksum and send message
+        QString checkSum = _getCheckSum(line);
+        QString* nmeaMessage = new QString(line + "*" + checkSum + "\r\n");
+
+        // Write nmea message
+        if(_socket) {
+            auto bytesWritten = _socket->write(nmeaMessage->toUtf8());
+        }
+
+        qCDebug(NTRIPLog) << "NMEA Message : " << nmeaMessage->toUtf8();
+        delete nmeaMessage;
+    }
+}
+
+QString NTRIPTCPLink::_getCheckSum(QString line) {
+    QByteArray temp_Byte = line.toUtf8();
+    const char* buf = temp_Byte.constData();
+
+    char character;
+    int checksum = 0;
+
+    for(int i = 0; i < line.length(); i++) {
+        character = buf[i];
+        switch(character) {
+        case '$':
+            // Ignore the dollar sign
+            break;
+        case '*':
+            // Stop processing before the asterisk
+            i = line.length();
+            continue;
+        default:
+            // First value for the checksum
+            if(checksum == 0) {
+                // Set the checksum to the value
+                checksum = character;
+            }
+            else {
+                // XOR the checksum with this character's value
+                checksum = checksum ^ character;
+            }
+        }
+    }
+
+    return QString("%1").arg(checksum, 0, 16);
 }
