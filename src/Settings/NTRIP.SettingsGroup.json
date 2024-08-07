@@ -18,7 +18,13 @@
     "default":         "ntrip://127.0.0.1",
     "qgcRebootRequired":    true
 },
-
+{
+    "name":                 "ntripVRS",
+    "shortDesc":            "NTRIP VRS Enable",
+    "type":                 "bool",
+    "default":              "false",
+    "qgcRebootRequired":    true
+},
 {
     "name":                 "ntripWhitelist",
     "shortDesc":     "RTCM Message Whitelist",

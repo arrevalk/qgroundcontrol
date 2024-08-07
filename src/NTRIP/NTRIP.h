@@ -28,6 +28,7 @@ class NTRIPTCPLink : public QThread
 public:
     NTRIPTCPLink(const QUrl ntripUrl,
                  const QString& whitelist,
+                 const bool vrsEnabled,
                  QObject* parent);
     ~NTRIPTCPLink();
 

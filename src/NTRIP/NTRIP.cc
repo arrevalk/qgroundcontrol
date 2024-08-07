@@ -30,6 +30,7 @@ void NTRIP::setToolbox(QGCToolbox* toolbox)
         
         _tcpLink = new NTRIPTCPLink(settings->ntripUrl()->rawValue().toString(),
                                     settings->ntripWhitelist()->rawValue().toString(),
+                                    settings->ntripVRS()->rawValue().toBool(),
                                     this);
         connect(_tcpLink, &NTRIPTCPLink::error,              this, &NTRIP::_tcpError,           Qt::QueuedConnection);
         connect(_tcpLink, &NTRIPTCPLink::RTCMDataUpdate,   _rtcmMavlink, &RTCMMavlink::RTCMDataUpdate);
@@ -45,6 +46,7 @@ void NTRIP::_tcpError(const QString errorMsg)
 
 NTRIPTCPLink::NTRIPTCPLink(const QUrl ntripUrl,
                            const QString &whitelist,
+                           const bool vrsEnabled,
                            QObject* parent)
     : QThread       (parent)
     , _ntripUrl     (ntripUrl)
@@ -161,6 +163,7 @@ void NTRIPTCPLink::_readBytes(void)
             }
         }
         QByteArray bytes = _socket->readAll();
+        qCInfo(NTRIPLog) << bytes;
         _parse(bytes);
     }
 }

@@ -20,5 +20,6 @@ public:
 
     DEFINE_SETTINGFACT(ntripServerConnectEnabled)
     DEFINE_SETTINGFACT(ntripUrl)
+    DEFINE_SETTINGFACT(ntripVRS)
     DEFINE_SETTINGFACT(ntripWhitelist)
 };

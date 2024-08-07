@@ -191,6 +191,14 @@ ToolIndicatorPage {
             }
             SettingsGroupLayout {
                 heading:        qsTr("RTK NTRIP Settings")
+                FactCheckBoxSlider {
+                    Layout.fillWidth:   true
+                    text:               qsTr("Enable VRS")
+                    fact:               ntripSettings.ntripVRS
+                    checkedValue:       false
+                    uncheckedValue:     true
+                    visible:            ntripSettings.ntripVRS.visible
+                }
                 LabelledFactTextField {
                     Layout.fillWidth:   true;
                     label:              ntripSettings.ntripUrl.shortDescription

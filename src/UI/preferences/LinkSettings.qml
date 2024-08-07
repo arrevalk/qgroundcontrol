@@ -232,6 +232,14 @@ SettingsPage {
             fact: _ntripSettings.ntripServerConnectEnabled
             visible: _ntripSettings.ntripServerConnectEnabled.visible
         }
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Enable VRS")
+            fact:               _ntripSettings.ntripVRS
+            checkedValue:       false
+            uncheckedValue:     true
+            visible:            _ntripSettings.ntripVRS.visible
+        }
         LabelledFactTextField {
             Layout.fillWidth:   true
             label:              _ntripSettings.ntripUrl.shortDescription
