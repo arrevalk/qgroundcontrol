@@ -195,8 +195,6 @@ ToolIndicatorPage {
                     Layout.fillWidth:   true
                     text:               qsTr("Enable VRS")
                     fact:               ntripSettings.ntripVRS
-                    checkedValue:       false
-                    uncheckedValue:     true
                     visible:            ntripSettings.ntripVRS.visible
                 }
                 LabelledFactTextField {

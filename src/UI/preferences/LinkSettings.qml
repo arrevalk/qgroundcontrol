@@ -236,8 +236,6 @@ SettingsPage {
             Layout.fillWidth:   true
             text:               qsTr("Enable VRS")
             fact:               _ntripSettings.ntripVRS
-            checkedValue:       false
-            uncheckedValue:     true
             visible:            _ntripSettings.ntripVRS.visible
         }
         LabelledFactTextField {
