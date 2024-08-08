@@ -16,7 +16,7 @@
 #include <QUrl>
 #include "Drivers/src/rtcm.h"
 #include "RTCMMavlink.h"
-
+#include <QGeoCoordinate>
 
 
 class NTRIPSettings;
@@ -52,7 +52,8 @@ private:
 
     void _hardwareConnect(void);
     void _parse(const QByteArray &buffer);
-    void _sendNMEA();
+    void _sendNMEA(QGeoCoordinate position = QGeoCoordinate(52,22,200));
+    void _triggerVRSUpdate();
     QString _getCheckSum(QString line);
 
     QTcpSocket*     _socket =   nullptr;
@@ -63,7 +64,7 @@ private:
 	
     RTCMParsing *_rtcm_parsing{nullptr};
     QTimer* _vrsSendTimer{nullptr};
-    static const int _vrsSendRateMSecs = 30000;
+    static const int _vrsSendRateMSecs = 3000;
     NTRIPState _state;
 
     QGCToolbox* _toolbox{nullptr};
