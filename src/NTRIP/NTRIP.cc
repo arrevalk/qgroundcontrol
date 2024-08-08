@@ -110,7 +110,6 @@ void NTRIPTCPLink::run(void)
 
 void NTRIPTCPLink::_triggerVRSUpdate(){
     QGeoCoordinate position = _toolbox->qgcPositionManager()->gcsPosition();
-    position = QGeoCoordinate(52,22,200);
     this->_sendNMEA(position);
 }
 
