@@ -96,14 +96,22 @@ void NTRIPTCPLink::run(void)
 {
     _hardwareConnect();
 
-    if(_isVRSEnable){
-        _vrsSendTimer = new QTimer();
-        _vrsSendTimer->setInterval(_vrsSendRateMSecs);
-        _vrsSendTimer->setSingleShot(false);
-        QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_sendNMEA);
-        _vrsSendTimer->start();
-    }
+//    if(_isVRSEnable){
+//        _vrsSendTimer = new QTimer();
+//        _vrsSendTimer->setInterval(_vrsSendRateMSecs);
+//        _vrsSendTimer->setSingleShot(false);
+//        QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_triggerVRSUpdate);
+//        _triggerVRSUpdate();
+//        _vrsSendTimer->start();
+//    }
     exec();
+}
+
+
+void NTRIPTCPLink::_triggerVRSUpdate(){
+    QGeoCoordinate position = _toolbox->qgcPositionManager()->gcsPosition();
+    position = QGeoCoordinate(52,22,200);
+    this->_sendNMEA(position);
 }
 
 void NTRIPTCPLink::_hardwareConnect()
@@ -179,6 +187,15 @@ void NTRIPTCPLink::_readBytes(void)
             qCInfo(NTRIPLog) << line;
             if (line.contains("200")){
                 _state = NTRIPState::waiting_for_rtcm_header;
+                //Tutaj dopier rozpocząć trzeba wysyłanie
+                if(_isVRSEnable && !_vrsSendTimer){
+                    _vrsSendTimer = new QTimer();
+                    _vrsSendTimer->setInterval(_vrsSendRateMSecs);
+                    _vrsSendTimer->setSingleShot(false);
+                    QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_triggerVRSUpdate);
+                    _triggerVRSUpdate();
+                    _vrsSendTimer->start();
+                }
             }
             else{
                 qCWarning(NTRIPLog) << "Server responded with " << line;
@@ -193,16 +210,14 @@ void NTRIPTCPLink::_readBytes(void)
 }
 
 
-void NTRIPTCPLink::_sendNMEA() {
-    QGeoCoordinate gcsPosition = _toolbox->qgcPositionManager()->gcsPosition();
-
-    if(!gcsPosition.isValid()) {
+void NTRIPTCPLink::_sendNMEA(QGeoCoordinate position) {
+    if(!position.isValid()) {
         return;
     }
 
-    double lat = gcsPosition.latitude();
-    double lng = gcsPosition.longitude();
-    double alt = gcsPosition.altitude();
+    double lat = position.latitude();
+    double lng = position.longitude();
+    double alt = position.altitude();
 
     qCDebug(NTRIPLog) << "lat : " << lat << " lon : " << lng << " alt : " << alt;
 
@@ -228,6 +243,7 @@ void NTRIPTCPLink::_sendNMEA() {
         // Write nmea message
         if(_socket) {
             auto bytesWritten = _socket->write(nmeaMessage->toUtf8());
+            _socket->flush();
         }
 
         qCDebug(NTRIPLog) << "NMEA Message : " << nmeaMessage->toUtf8();
