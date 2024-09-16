@@ -202,14 +202,14 @@ ToolIndicatorPage {
                     label:              ntripSettings.ntripUrl.shortDescription
                     fact:               ntripSettings.ntripUrl
                     visible:            ntripSettings.ntripUrl.visible
-                    textFieldPreferredWidth: 400
+                    //textFieldPreferredWidth: 400
                 }
                 LabelledFactTextField {
                     Layout.fillWidth:   true;
                     label:              ntripSettings.ntripWhitelist.shortDescription
                     fact:               ntripSettings.ntripWhitelist
                     visible:            ntripSettings.ntripWhitelist.visible
-                    textFieldPreferredWidth: 400
+                    //textFieldPreferredWidth: 400
                 }
             }
         }
