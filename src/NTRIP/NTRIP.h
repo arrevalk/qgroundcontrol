@@ -10,7 +10,7 @@
 #pragma once
 
 #include "QGCToolbox.h"
-
+#include <QTimer>
 #include <QThread>
 #include <QTcpSocket>
 #include <QUrl>
