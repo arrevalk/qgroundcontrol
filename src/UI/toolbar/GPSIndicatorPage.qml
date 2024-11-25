@@ -190,7 +190,9 @@ ToolIndicatorPage {
                 }
             }
             SettingsGroupLayout {
+                id: ntripSettingsGroup
                 heading:        qsTr("RTK NTRIP Settings")
+                property real textFieldWidth: ScreenTools.defaultFontPixelWidth * 32
                 FactCheckBoxSlider {
                     Layout.fillWidth:   true
                     text:               qsTr("Enable VRS")
@@ -202,14 +204,14 @@ ToolIndicatorPage {
                     label:              ntripSettings.ntripUrl.shortDescription
                     fact:               ntripSettings.ntripUrl
                     visible:            ntripSettings.ntripUrl.visible
-                    //textFieldPreferredWidth: 400
+                    textFieldPreferredWidth: ntripSettingsGroup.textFieldWidth
                 }
                 LabelledFactTextField {
                     Layout.fillWidth:   true;
                     label:              ntripSettings.ntripWhitelist.shortDescription
                     fact:               ntripSettings.ntripWhitelist
                     visible:            ntripSettings.ntripWhitelist.visible
-                    //textFieldPreferredWidth: 400
+                    textFieldPreferredWidth: ntripSettingsGroup.textFieldWidth
                 }
             }
         }
