@@ -28,6 +28,18 @@ Item {
 
     property var    _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
 
+    function rtkIconColor(gpsMode){
+        switch(gpsMode) {
+        case 5:     //3D RTK GPS Lock (float)
+            return Qt.color("yellow")
+        case 6:     //3D RTK GPS Lock (fixed)
+            return Qt.color("green")
+        default:
+            break;
+        }
+        return qgcPal.buttonText
+    }
+
     QGCColoredImage {
         id:                 gpsIcon
         width:              height
@@ -37,7 +49,7 @@ Item {
         fillMode:           Image.PreserveAspectFit
         sourceSize.height:  height
         opacity:            (_activeVehicle && _activeVehicle.gps.count.value >= 0) ? 1 : 0.5
-        color:              qgcPal.buttonText
+        color:              _activeVehicle ? rtkIconColor(_activeVehicle.gps.lock) : qgcPal.buttonText
     }
 
     Column {
