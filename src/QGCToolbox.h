@@ -29,6 +29,7 @@ class MAVLinkLogManager;
 class QGCCorePlugin;
 class SettingsManager;
 class ADSBVehicleManager;
+class NTRIP;
 #ifndef QGC_AIRLINK_DISABLED
 class AirLinkManager;
 #endif
@@ -57,6 +58,7 @@ public:
     QGCCorePlugin*              corePlugin              () { return _corePlugin; }
     SettingsManager*            settingsManager         () { return _settingsManager; }
     ADSBVehicleManager*         adsbVehicleManager      () { return _adsbVehicleManager; }
+    NTRIP*                      ntrip                   () { return _ntrip; }
 #ifndef NO_SERIAL_LINK
     GPSManager*                 gpsManager              () { return _gpsManager; }
 #endif
@@ -88,6 +90,7 @@ private:
     QGCCorePlugin*              _corePlugin             = nullptr;
     SettingsManager*            _settingsManager        = nullptr;
     ADSBVehicleManager*         _adsbVehicleManager     = nullptr;
+    NTRIP*                      _ntrip                  = nullptr;
 #ifndef QGC_AIRLINK_DISABLED
     AirLinkManager*             _airlinkManager         = nullptr;
 #endif

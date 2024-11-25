@@ -26,6 +26,7 @@ SettingsManager::SettingsManager(QGCApplication* app, QGCToolbox* toolbox)
     , _offlineMapsSettings          (nullptr)
     , _firmwareUpgradeSettings      (nullptr)
     , _adsbVehicleManagerSettings   (nullptr)
+    , _ntripSettings                (nullptr)
     , _batteryIndicatorSettings     (nullptr)
     , _mapsSettings                 (nullptr)
     , _viewer3DSettings             (nullptr)
@@ -57,6 +58,7 @@ void SettingsManager::setToolbox(QGCToolbox *toolbox)
     _offlineMapsSettings =          new OfflineMapsSettings         (this);
     _firmwareUpgradeSettings =      new FirmwareUpgradeSettings     (this);
     _adsbVehicleManagerSettings =   new ADSBVehicleManagerSettings  (this);
+    _ntripSettings =                new NTRIPSettings               (this);
     _batteryIndicatorSettings =     new BatteryIndicatorSettings    (this);
     _mapsSettings =                 new MapsSettings                (this);
     _viewer3DSettings =             new Viewer3DSettings            (this);

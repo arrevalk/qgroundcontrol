@@ -21,6 +21,7 @@ import QGroundControl.Palette
 SettingsPage {
     property var _linkManager:          QGroundControl.linkManager
     property var _autoConnectSettings:  QGroundControl.settingsManager.autoConnectSettings
+    property var _ntripSettings:        QGroundControl.settingsManager.ntripSettings
 
     SettingsGroupLayout {
         heading:        qsTr("AutoConnect")
@@ -222,5 +223,34 @@ SettingsPage {
                 }
             }
         }
+    }
+
+    SettingsGroupLayout {
+        heading: qsTr("NTRIP")
+        FactCheckBox {
+            text: _ntripSettings.ntripServerConnectEnabled.shortDescription
+            fact: _ntripSettings.ntripServerConnectEnabled
+            visible: _ntripSettings.ntripServerConnectEnabled.visible
+        }
+        FactCheckBoxSlider {
+            Layout.fillWidth:   true
+            text:               qsTr("Enable VRS")
+            fact:               _ntripSettings.ntripVRS
+            visible:            _ntripSettings.ntripVRS.visible
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripUrl.shortDescription
+            fact:               _ntripSettings.ntripUrl
+            visible:            _ntripSettings.ntripUrl.visible
+            textFieldPreferredWidth: 200
+        }
+        LabelledFactTextField {
+            Layout.fillWidth:   true
+            label:              _ntripSettings.ntripWhitelist.shortDescription
+            fact:               _ntripSettings.ntripWhitelist
+            visible:            _ntripSettings.ntripWhitelist.visible
+        }
+
     }
 }

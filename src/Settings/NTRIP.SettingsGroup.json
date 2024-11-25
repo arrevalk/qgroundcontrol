@@ -1,0 +1,37 @@
+{
+    "version":      1,
+    "fileType":  "FactMetaData",
+    "QGC.MetaData.Facts":
+[
+{
+    "name":                 "ntripServerConnectEnabled",
+    "shortDesc":     "Connect to NTRIP server",
+    "longDesc":      "Connect to NTRIP server using specified address/port",
+    "type":                 "bool",
+    "default":         false,
+    "qgcRebootRequired":    true
+},
+{
+    "name":                 "ntripUrl",
+    "shortDesc":     "NTRIP URL",
+    "type":                 "string",
+    "default":         "ntrip://127.0.0.1",
+    "qgcRebootRequired":    true
+},
+{
+    "name":                 "ntripVRS",
+    "shortDesc":            "NTRIP VRS Enable",
+    "type":                 "bool",
+    "default":              "false",
+    "qgcRebootRequired":    true
+},
+{
+    "name":                 "ntripWhitelist",
+    "shortDesc":     "RTCM Message Whitelist",
+    "longDesc":      "RTCM Messages to send over mavlink. Leave blank for all messages",
+    "type":                 "string",
+    "default":         "",
+    "qgcRebootRequired":    true
+}
+]
+}
