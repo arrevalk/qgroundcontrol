@@ -13,6 +13,8 @@
 #include "SettingsManager.h"
 #include "NTRIPSettings.h"
 #include "PositionManager.h"
+#include "MultiVehicleManager.h"
+#include "Vehicle.h"
 
 #include <QDebug>
 
@@ -96,21 +98,29 @@ void NTRIPTCPLink::run(void)
 {
     _hardwareConnect();
 
-//    if(_isVRSEnable){
-//        _vrsSendTimer = new QTimer();
-//        _vrsSendTimer->setInterval(_vrsSendRateMSecs);
-//        _vrsSendTimer->setSingleShot(false);
-//        QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_triggerVRSUpdate);
-//        _triggerVRSUpdate();
-//        _vrsSendTimer->start();
-//    }
+    if(_isVRSEnable){
+        _vrsSendTimer = new QTimer();
+        _vrsSendTimer->setInterval(_vrsSendRateMSecs);
+        _vrsSendTimer->setSingleShot(false);
+        QObject::connect(_vrsSendTimer, &QTimer::timeout, this, &NTRIPTCPLink::_triggerVRSUpdate);
+        _triggerVRSUpdate();
+        _vrsSendTimer->start();
+    }
     exec();
 }
 
 
 void NTRIPTCPLink::_triggerVRSUpdate(){
-    QGeoCoordinate position = _toolbox->qgcPositionManager()->gcsPosition();
-    this->_sendNMEA(position);
+    QGeoCoordinate position;
+    auto vehicleManager = _toolbox->multiVehicleManager();
+    if(vehicleManager->activeVehicleAvailable()){
+        //There is a active vechicle check for its position
+        position = vehicleManager->activeVehicle()->coordinate();
+    }
+    if(!position.isValid()){
+        position = _toolbox->qgcPositionManager()->gcsPosition();
+    }
+    if(position.isValid()) this->_sendNMEA(position);
 }
 
 void NTRIPTCPLink::_hardwareConnect()
