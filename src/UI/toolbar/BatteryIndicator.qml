@@ -175,6 +175,7 @@ Item {
                     property bool timeRemainingAvailable:    !isNaN(battery.timeRemaining.rawValue)
                     property bool percentRemainingAvailable: !isNaN(battery.percentRemaining.rawValue)
                     property bool chargeStateAvailable:      battery.chargeState.rawValue !== MAVLink.MAV_BATTERY_CHARGE_STATE_UNDEFINED
+                    property bool instantPowerAvailable:     !isNaN(battery.instantPower.rawValue)
                 }
             }
 
@@ -216,6 +217,14 @@ Item {
                     LabelledLabel {
                         label:      qsTr("Voltage")
                         labelText:  object.voltage.valueString + " " + object.voltage.units
+                    }
+                    LabelledLabel {
+                        label:      qsTr("Current")
+                        labelText:  object.current.valueString + " " + object.current.units
+                    }
+                    LabelledLabel {
+                        label:      qsTr("Instant Power")
+                        labelText:  object.instantPower.valueString + " " + object.instantPower.units
                     }
 
                     LabelledLabel {
