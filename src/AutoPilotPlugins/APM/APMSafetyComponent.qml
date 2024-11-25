@@ -11,6 +11,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import QGroundControl
 import QGroundControl.FactSystem
 import QGroundControl.FactControls
 import QGroundControl.Palette
@@ -54,12 +55,22 @@ SetupPage {
             property Fact _failsafeBatt1CritVoltage:        controller.getParameterFact(-1, "BATT_CRT_VOLT", false /* reportMissing */)
             property Fact _failsafeBatt2CritVoltage:        controller.getParameterFact(-1, "BATT2_CRT_VOLT", false /* reportMissing */)
 
+            property Fact _avoidanceEnable: controller.getParameterFact(-1, "AVOID_ENABLE")
+            property Fact _avoidanceMargin: controller.getParameterFact(-1, "AVOID_MARGIN")
+            property Fact _avoidanceBehave: controller.getParameterFact(-1, "AVOID_BEHAVE")
+            property Fact _avoidanceBackupSpeed: controller.getParameterFact(-1, "AVOID_BACKUP_SPD")
+            property Fact _avoidanceAccelMax: controller.getParameterFact(-1, "AVOID_ACCEL_MAX")
+            property Fact _avoidanceBackupDeadzone: controller.getParameterFact(-1, "AVOID_BACKUP_DZ")
+
             property Fact _armingCheck: controller.getParameterFact(-1, "ARMING_CHECK")
 
             property real _margins:         ScreenTools.defaultFontPixelHeight
             property real _innerMargin:     _margins / 2
             property bool _showIcon:        !ScreenTools.isTinyScreen
             property bool _roverFirmware:   controller.parameterExists(-1, "MODE1") // This catches all usage of ArduRover firmware vehicle types: Rover, Boat...
+
+            property real _imageHeight: ScreenTools.defaultFontPixelHeight * 3
+            property real _imageWidth: _imageHeight * 2
 
 
             property string _restartRequired: qsTr("Requires vehicle reboot")
@@ -710,6 +721,93 @@ SetupPage {
             Loader {
                 sourceComponent: controller.vehicle.fixedWing ? planeRTL : undefined
             }
+
+            Column{
+                spacing: _margins / 2
+
+                QGCLabel {
+                    text:       qsTr("Object Detection")
+                    font.family: ScreenTools.demiboldFontFamily
+                }
+
+                Rectangle {
+                    width:  objectAvoidanceLoader.x + objectAvoidanceLoader.width + _margins
+                    height: objectAvoidanceLoader.y + objectAvoidanceLoader.height + _margins
+                    color:  ggcPal.windowShade
+
+                    Loader {
+                        id:                 objectAvoidanceLoader
+                        anchors.margins:    _margins
+                        anchors.top:        parent.top
+                        anchors.left:       parent.left
+                        sourceComponent:    objectAvoidance
+
+                        property Fact avoidanceEnable: _avoidanceEnable
+                        property Fact avoidanceMargin: _avoidanceMargin
+                        property Fact avoidanceBehave: _avoidanceBehave
+                        property Fact avoidanceBackupSpeed: _avoidanceBackupSpeed
+                        property Fact avoidanceAccelMax: _avoidanceAccelMax
+                        property Fact avoidanceBackupDeadzone: _avoidanceBackupDeadzone
+                    }
+                }
+            }
+
+            Component{
+                id: objectAvoidance
+                Column{
+                    spacing: _margins
+                    GridLayout {
+                        id:             gridLayout
+                        columnSpacing:  _margins
+                        rowSpacing:     _margins
+                        columns:        2
+                        QGCLabel { text: qsTr("Mode:") }
+                        FactBitmask {
+                            firstEntryIsAll:    false
+                            fact:               avoidanceEnable
+                            Layout.fillWidth: true
+                        }
+                        QGCLabel { text: qsTr("Margin:") }
+                        FactTextField {
+                            fact:               avoidanceMargin
+                            showUnits:          true
+                            Layout.fillWidth:   true
+                        }
+                        QGCLabel { text: qsTr("Avoid Behave:") }
+                        FactComboBox {
+                            fact:               avoidanceBehave
+                            indexModel:         false
+                            Layout.fillWidth:   true
+                        }
+                        QGCLabel { text: qsTr("Backup speed:") }
+                        FactTextField {
+                            fact:               avoidanceBackupSpeed
+                            showUnits:          true
+                            Layout.fillWidth:   true
+                        }
+                        QGCLabel { text: qsTr("Max acceleration:") }
+                        FactTextField {
+                            fact:               avoidanceAccelMax
+                            showUnits:          true
+                            Layout.fillWidth:   true
+                        }
+                        QGCLabel { text: qsTr("Backup deadzone:") }
+                        FactTextField {
+                            fact:               avoidanceBackupDeadzone
+                            showUnits:          true
+                            Layout.fillWidth:   true
+                        }
+                        FactCheckBox{
+                            id: showObstacleDistanceOverlayChackBox
+                            text: qsTr("Show obstacle distance overlay")
+                            visible: _showObstacleDistanceOverlay.visible
+                            fact: _showObstacleDistanceOverlay
+
+                            property Fact _showObstacleDistanceOverlay: QGroundControl.settingsManager.flyViewSettings.showObstacleDistanceOverlay
+                        }
+                    } // GridLayout - object avoidance
+                } // Column - object avoidance
+            } // Component - object avoidance
 
             Column {
                 spacing: _margins / 2
